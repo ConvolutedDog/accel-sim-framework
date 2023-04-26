@@ -15,7 +15,7 @@ CUOPTS =  $(GENCODE_ARCH) $(GENCODE_SM50) $(GENCODE_SM60) $(GENCODE_SM62) $(GENC
 
 CC := nvcc
 
-CUDA_PATH ?= /use/local/cuda-10.1/
+CUDA_PATH ?= /usr/local/cuda-11.0/
 INCLUDE := $(CUDA_PATH)/samples/common/inc/
 LIB := 
 
