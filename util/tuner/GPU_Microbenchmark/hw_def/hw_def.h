@@ -11,6 +11,8 @@
 
 //#include "ampere_RTX3070_hw_def.h"
 
-#include "volta_TITANV_hw_def.h"
+//#include "volta_TITANV_hw_def.h"
+
+#include "turing_RTX2080_Ti_CE_hw_def.h"
 
 #endif
