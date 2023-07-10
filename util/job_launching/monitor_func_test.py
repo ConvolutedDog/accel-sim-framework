@@ -84,8 +84,8 @@ parser.add_option("-v", "--verbose", dest="verbose", action="store_true",
                   help="Constantly print stuff")
 parser.add_option("-s", "--statsfile", dest="statsfile", default="",
                   help="In verbose mode specify where the stats go")
-parser.add_option("-S", "--sleep_time", dest="sleep_time", default="30",
-                  help="Time to sleep in (s) - default is 30.")
+parser.add_option("-S", "--sleep_time", dest="sleep_time", default="5",
+                  help="Time to sleep in (s) - default is 5.")
 parser.add_option("-I", "--ignore_failures", dest="ignore_failures", action="store_true",
                   help="If some of the runs have errors - do not return an error code.")
 parser.add_option("-T", "--timeout", dest="timeout", default="99999",
