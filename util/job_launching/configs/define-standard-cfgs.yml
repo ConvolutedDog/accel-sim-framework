@@ -20,6 +20,10 @@ RTX2060:
     base_file: "$GPGPUSIM_ROOT/configs/tested-cfgs/SM75_RTX2060/gpgpusim.config"
 
 #Turing
+RTX2080Ti:
+    base_file: "$GPGPUSIM_ROOT/configs/tested-cfgs/SM75_RTX2080_Ti/gpgpusim.config"
+
+#Turing
 RTX2060_S:
     base_file: "$GPGPUSIM_ROOT/configs/tested-cfgs/SM75_RTX2060_S/gpgpusim.config"
 
