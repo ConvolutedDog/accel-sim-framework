@@ -15,7 +15,7 @@ vectorSparse:
     data_dirs: "$GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.5"
     execs:
         - spmm_benchmark:
-            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.5/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 4 8 0 1 1 0 1
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.5/body_decoder_layer_3_ffn_conv2_fully_connected.smtx 512 4 0 1 1 1 1
               accel-sim-mem: 1G
 
 # Rodinia 2.0 implemented with a pass/fail functional test
@@ -520,51 +520,69 @@ cutlass_5_trace:
     exec_dir: "$GPUAPPS_ROOT/bin/$CUDA_VERSION/release/"
     data_dirs: "$GPUAPPS_ROOT/data_dirs/"
     execs:
-        - cutlass_perf_test:
-            - args: --seed=2020 --dist=0  --m=2560 --n=16 --k=2560 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+        - cutlass_perf_test_k1:
+            - args: --seed=2020 --dist=0  --m=2048 --n=512 --k=512 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
               accel-sim-mem: 3G
-            - args: --seed=2020 --dist=0  --m=2560 --n=32 --k=2560 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 3G
-            - args: --seed=2020 --dist=0  --m=2560 --n=64 --k=2560 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 3G
-            - args: --seed=2020 --dist=0  --m=2560 --n=128 --k=2560 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 3G
-            - args: --seed=2020 --dist=0  --m=2560 --n=7000 --k=2560 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 3G
-            - args: --seed=2020 --dist=0  --m=4096 --n=16 --k=4096 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 5G
-            - args: --seed=2020 --dist=0  --m=4096 --n=32 --k=4096 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 5G
-            - args: --seed=2020 --dist=0  --m=4096 --n=64 --k=4096 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 5G
-            - args: --seed=2020 --dist=0  --m=4096 --n=128 --k=4096 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 5G
-            - args: --seed=2020 --dist=0  --m=4096 --n=7000 --k=4096 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 5G
-            - args: --seed=2020 --dist=0  --m=2560 --n=16 --k=2560 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 13G
-            - args: --seed=2020 --dist=0  --m=2560 --n=32 --k=2560 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 13G
-            - args: --seed=2020 --dist=0  --m=2560 --n=64 --k=2560 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 13G
-            - args: --seed=2020 --dist=0  --m=2560 --n=128 --k=2560 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 13G
-            - args: --seed=2020 --dist=0  --m=2560 --n=512 --k=2560 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 13G
-            - args: --seed=2020 --dist=0  --m=2560 --n=1024 --k=2560 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 13G
-            - args: --seed=2020 --dist=0  --m=2560 --n=2560 --k=2560 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 13G
-            - args: --seed=2020 --dist=0  --m=4096 --n=16 --k=4096 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 16G
-            - args: --seed=2020 --dist=0  --m=4096 --n=32 --k=4096 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 16G
-            - args: --seed=2020 --dist=0  --m=4096 --n=64 --k=4096 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 16G
-            - args: --seed=2020 --dist=0  --m=4096 --n=128 --k=4096 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 16G
-            - args: --seed=2020 --dist=0  --m=4096 --n=4096 --k=4096 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
-              accel-sim-mem: 20G
+#            - args: --seed=2020 --dist=0  --m=2048 --n=2048 --k=2048 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 3G
+#            - args: --seed=2020 --dist=0  --m=512 --n=512 --k=512 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 3G
+#            - args: --seed=2020 --dist=0  --m=512 --n=2048 --k=1024 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 3G
+#            - args: --seed=2020 --dist=0  --m=256 --n=16 --k=256 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 3G
+#            - args: --seed=2020 --dist=0  --m=256 --n=32 --k=256 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 3G
+#            - args: --seed=2020 --dist=0  --m=256 --n=64 --k=256 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 3G
+#            - args: --seed=2020 --dist=0  --m=256 --n=128 --k=256 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 3G
+#            - args: --seed=2020 --dist=0  --m=256 --n=256 --k=256 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 3G
+#            - args: --seed=2020 --dist=0  --m=2560 --n=16 --k=2560 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 3G
+#            - args: --seed=2020 --dist=0  --m=2560 --n=32 --k=2560 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 3G
+#            - args: --seed=2020 --dist=0  --m=2560 --n=64 --k=2560 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 3G
+#            - args: --seed=2020 --dist=0  --m=2560 --n=128 --k=2560 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 3G
+#            - args: --seed=2020 --dist=0  --m=2560 --n=7000 --k=2560 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 3G
+#            - args: --seed=2020 --dist=0  --m=4096 --n=16 --k=4096 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 5G
+#            - args: --seed=2020 --dist=0  --m=4096 --n=32 --k=4096 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 5G
+#            - args: --seed=2020 --dist=0  --m=4096 --n=64 --k=4096 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 5G
+#            - args: --seed=2020 --dist=0  --m=4096 --n=128 --k=4096 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 5G
+#            - args: --seed=2020 --dist=0  --m=4096 --n=7000 --k=4096 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 5G
+#            - args: --seed=2020 --dist=0  --m=2560 --n=16 --k=2560 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 13G
+#            - args: --seed=2020 --dist=0  --m=2560 --n=32 --k=2560 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 13G
+#            - args: --seed=2020 --dist=0  --m=2560 --n=64 --k=2560 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 13G
+#            - args: --seed=2020 --dist=0  --m=2560 --n=128 --k=2560 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 13G
+#            - args: --seed=2020 --dist=0  --m=2560 --n=512 --k=2560 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 13G
+#            - args: --seed=2020 --dist=0  --m=2560 --n=1024 --k=2560 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 13G
+#            - args: --seed=2020 --dist=0  --m=2560 --n=2560 --k=2560 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 13G
+#            - args: --seed=2020 --dist=0  --m=4096 --n=16 --k=4096 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 16G
+#            - args: --seed=2020 --dist=0  --m=4096 --n=32 --k=4096 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 16G
+#            - args: --seed=2020 --dist=0  --m=4096 --n=64 --k=4096 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 16G
+#            - args: --seed=2020 --dist=0  --m=4096 --n=128 --k=4096 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 16G
+#            - args: --seed=2020 --dist=0  --m=4096 --n=4096 --k=4096 --kernels=sgemm_nn  --iterations=5 --providers=cutlass
+#              accel-sim-mem: 20G
 
 ## Not sure how much memory the following apps take - just letting them go with the default
 
