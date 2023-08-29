@@ -119,11 +119,15 @@ trace_kernel_info_t::trace_kernel_info_t(dim3 gridDim, dim3 blockDim,
 }
 
 void trace_kernel_info_t::get_next_threadblock_traces(
-    std::vector<std::vector<inst_trace_t> *> threadblock_traces) {
+    std::vector<std::vector<inst_trace_t> *> threadblock_traces,
+    std::string kernel_name, 
+    unsigned kernel_id) {
   m_parser->get_next_threadblock_traces(threadblock_traces,
                                         m_kernel_trace_info->trace_verion,
                                         m_kernel_trace_info->enable_lineinfo,
-                                        m_kernel_trace_info->ifs);
+                                        m_kernel_trace_info->ifs,
+                                        kernel_name,
+                                        kernel_id);
 }
 
 types_of_operands get_oprnd_type(op_type op, special_ops sp_op){
@@ -205,6 +209,7 @@ bool trace_warp_inst_t::parse_from_trace_struct(
               << " Opcode: " << opcode1 << std::endl;
     assert(0 && "undefined instruction");
   }
+  // printf("@@@@@@ pc: %d, opcode: %s\n", pc, trace.opcode.c_str());
   std::string opcode = trace.opcode;
   if(opcode1 == "MUFU"){ // Differentiate between different MUFU operations for power model
     if ((opcode == "MUFU.SIN") || (opcode == "MUFU.COS"))
@@ -576,7 +581,9 @@ void trace_shader_core_ctx::init_traces(unsigned start_warp, unsigned end_warp,
   }
   trace_kernel_info_t &trace_kernel =
       static_cast<trace_kernel_info_t &>(kernel);
-  trace_kernel.get_next_threadblock_traces(threadblock_traces);
+  trace_kernel.get_next_threadblock_traces(threadblock_traces, 
+                                           trace_kernel.get_trace_info()->kernel_name, 
+                                           trace_kernel.get_trace_info()->kernel_id);
 
   // set the pc from the traces and ignore the functional model
   for (unsigned i = start_warp; i < end_warp; ++i) {
