@@ -28,3 +28,19 @@ make cutlass -C ./gpu-app-collection/src
 ./util/job_launching/monitor_func_test.py -v -N myTest-202307102012
 ./util/job_launching/run_simulations.py -B cutlass_5_trace -C RTX2080Ti-PTX -T ./hw_run/traces/device-0/11.0/ -N myTest-202307102018
 ./util/job_launching/monitor_func_test.py -v -N myTest-202307102018
+
+# debug
+gdb -args ./gpu-simulator/bin/debug/accel-sim.out -trace ./hw_run/traces/device-0/11.0/cutlass_perf_test_k1/__seed_2020___dist_0____m_256___n_256___k_256___kernels_wmma_gemm_nn____iterations_1___providers_cutlass/traces/kernelslist.g -config ./gpu-simulator/gpgpu-sim/configs/tested-cfgs/SM75_RTX2080_Ti/gpgpusim.config -config ./gpu-simulator/configs/tested-cfgs/SM75_RTX2080_Ti/trace.config
+
+# sass_states && aerialvision
+# every time execute run_hw_trace, you must bash && conda activate accel-sim && source ./gpu-app-collection/src/setup_environment
+source ./gpu-app-collection/src/setup_environment
+export TRACE_LINEINFO=1
+conda activate Accel-Sim
+./util/tracer_nvbit/run_hw_trace.py -B cutlass_5_trace -D 0
+# every time execute run_simulations, you must source ./gpu-simulator/setup_environment.sh
+rm -rf ./sim_run_11.0/gpgpu-sim-builds/
+source ./gpu-simulator/setup_environment.sh release && make -j -C ./gpu-simulator/
+./util/job_launching/run_simulations.py -B cutlass_5_trace -C RTX2080Ti-VISUAL -T ./hw_run/traces/device-0/11.0/ -N myTest-202307102012
+./util/job_launching/monitor_func_test.py -v -N myTest-202307102012
+
