@@ -88,7 +88,9 @@ class trace_kernel_info_t : public kernel_info_t {
                       kernel_trace_t *kernel_trace_info);
 
   void get_next_threadblock_traces(
-      std::vector<std::vector<inst_trace_t> *> threadblock_traces);
+      std::vector<std::vector<inst_trace_t> *> threadblock_traces,
+      std::string kernel_name,
+      unsigned kernel_id);
 
   unsigned long get_cuda_stream_id() {
     return m_kernel_trace_info->cuda_stream_id;
