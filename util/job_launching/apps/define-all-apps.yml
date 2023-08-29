@@ -9,13 +9,200 @@
 #       ...
 # If you have a bunch of random benchmarks in random places, then a "suite" can be just one benchmark
 
+# wmma_tensorcore
+wmma_tensorcore:
+    exec_dir: "$GPUAPPS_ROOT/bin/$CUDA_VERSION/release/"
+    data_dirs: ""
+    execs:
+        - wmma_tensorcore:
+            - args:
+              accel-sim-mem: 1G
+
+# cutlass
+cutlass:
+    exec_dir: "$GPUAPPS_ROOT/bin/$CUDA_VERSION/release/"
+    data_dirs: ""
+    execs:
+        - cutlass_perf_test_k1:
+            - args: --seed=2020 --dist=0  --m=64 --n=64 --k=64 --kernels=wmma_gemm_nn --batch=1 --iterations=1 --providers=cutlass
+              accel-sim-mem: 3G
+        - cutlass_perf_test_k1:
+            - args: --seed=2020 --dist=0  --m=128 --n=128 --k=128 --kernels=wmma_gemm_nn --batch=1 --iterations=1 --providers=cutlass
+              accel-sim-mem: 3G
+        - cutlass_perf_test_k1:
+            - args: --seed=2020 --dist=0  --m=256 --n=256 --k=256 --kernels=wmma_gemm_nn --batch=1 --iterations=1 --providers=cutlass
+              accel-sim-mem: 3G
+        - cutlass_perf_test_k1:
+            - args: --seed=2020 --dist=0  --m=512 --n=512 --k=512 --kernels=wmma_gemm_nn --batch=1 --iterations=1 --providers=cutlass
+              accel-sim-mem: 3G
+        - cutlass_perf_test_k1:
+            - args: --seed=2020 --dist=0  --m=1024 --n=1024 --k=1024 --kernels=wmma_gemm_nn --batch=1 --iterations=1 --providers=cutlass
+              accel-sim-mem: 3G
+        - cutlass_perf_test_k1:
+            - args: --seed=2020 --dist=0  --m=64 --n=64 --k=64 --kernels=sgemm_nn --batch=1 --iterations=1 --providers=cutlass
+              accel-sim-mem: 3G
+        - cutlass_perf_test_k1:
+            - args: --seed=2020 --dist=0  --m=128 --n=128 --k=128 --kernels=sgemm_nn --batch=1 --iterations=1 --providers=cutlass
+              accel-sim-mem: 3G
+        - cutlass_perf_test_k1:
+            - args: --seed=2020 --dist=0  --m=256 --n=256 --k=256 --kernels=sgemm_nn --batch=1 --iterations=1 --providers=cutlass
+              accel-sim-mem: 3G
+        - cutlass_perf_test_k1:
+            - args: --seed=2020 --dist=0  --m=512 --n=512 --k=512 --kernels=sgemm_nn --batch=1 --iterations=1 --providers=cutlass
+              accel-sim-mem: 3G
+        - cutlass_perf_test_k1:
+            - args: --seed=2020 --dist=0  --m=1024 --n=1024 --k=1024 --kernels=sgemm_nn --batch=1 --iterations=1 --providers=cutlass
+              accel-sim-mem: 3G
+
 # vectorSparse
 vectorSparse:
     exec_dir: "$GPUAPPS_ROOT/bin/$CUDA_VERSION/release/"
-    data_dirs: "$GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.5"
+    data_dirs: ""
     execs:
+        # vector=8, sparsity=0.5, 512x512x512, fp16
         - spmm_benchmark:
-            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.5/body_decoder_layer_3_ffn_conv2_fully_connected.smtx 512 4 0 1 1 1 1
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.5/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 8 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=8, sparsity=0.6, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.6/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 8 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=8, sparsity=0.7, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.7/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 8 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=8, sparsity=0.8, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.8/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 8 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=8, sparsity=0.9, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.9/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 8 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=8, sparsity=0.95, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.95/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 8 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=8, sparsity=0.98, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.98/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 8 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=4, sparsity=0.5, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.5/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 4 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=4, sparsity=0.6, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.6/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 4 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=4, sparsity=0.7, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.7/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 4 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=4, sparsity=0.8, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.8/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 4 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=4, sparsity=0.9, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.9/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 4 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=4, sparsity=0.95, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.95/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 4 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=4, sparsity=0.98, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.98/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 4 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=2, sparsity=0.5, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.5/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 2 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=2, sparsity=0.6, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.6/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 2 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=2, sparsity=0.7, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.7/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 2 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=2, sparsity=0.8, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.8/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 2 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=2, sparsity=0.9, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.9/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 2 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=2, sparsity=0.95, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.95/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 2 0 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=2, sparsity=0.98, 512x512x512, fp16
+        - spmm_benchmark:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.98/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 2 0 1 1 1 1
+              accel-sim-mem: 1G
+
+sputnik:
+    exec_dir: "$GPUAPPS_ROOT/bin/$CUDA_VERSION/release/"
+    data_dirs: ""
+    execs:
+        # vector=1, sparsity=0.5, 512x512x512, fp16
+        - spmm_test:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.5/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 1 2 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=1, sparsity=0.6, 512x512x512, fp16
+        - spmm_test:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.6/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 1 2 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=1, sparsity=0.7, 512x512x512, fp16
+        - spmm_test:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.7/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 1 2 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=1, sparsity=0.8, 512x512x512, fp16
+        - spmm_test:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.8/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 1 2 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=1, sparsity=0.9, 512x512x512, fp16
+        - spmm_test:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.9/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 1 2 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=1, sparsity=0.95, 512x512x512, fp16
+        - spmm_test:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.95/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 1 2 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=1, sparsity=0.98, 512x512x512, fp16
+        - spmm_test:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.98/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 1 2 1 1 1 1
+              accel-sim-mem: 1G
+        # vector=1, sparsity=0.5, 512x512x512, fp32
+        - spmm_test:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.5/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 1 2 1 1 1 0
+              accel-sim-mem: 1G
+        # vector=1, sparsity=0.6, 512x512x512, fp32
+        - spmm_test:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.6/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 1 2 1 1 1 0
+              accel-sim-mem: 1G
+        # vector=1, sparsity=0.7, 512x512x512, fp32
+        - spmm_test:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.7/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 1 2 1 1 1 0
+              accel-sim-mem: 1G
+        # vector=1, sparsity=0.8, 512x512x512, fp32
+        - spmm_test:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.8/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 1 2 1 1 1 0
+              accel-sim-mem: 1G
+        # vector=1, sparsity=0.9, 512x512x512, fp32
+        - spmm_test:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.9/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 1 2 1 1 1 0
+              accel-sim-mem: 1G
+        # vector=1, sparsity=0.95, 512x512x512, fp32
+        - spmm_test:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.95/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 1 2 1 1 1 0
+              accel-sim-mem: 1G
+        # vector=1, sparsity=0.98, 512x512x512, fp32
+        - spmm_test:
+            - args: $GPUAPPS_ROOT/data_dirs/dlmc/transformer/random_pruning/0.98/body_decoder_layer_0_encdec_attention_multihead_attention_k_fully_connected.smtx 512 1 2 1 1 1 0
               accel-sim-mem: 1G
 
 # Rodinia 2.0 implemented with a pass/fail functional test
@@ -521,8 +708,22 @@ cutlass_5_trace:
     data_dirs: "$GPUAPPS_ROOT/data_dirs/"
     execs:
         - cutlass_perf_test_k1:
-            - args: --seed=2020 --dist=0  --m=2048 --n=512 --k=512 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
+            - args: --seed=2020 --dist=0  --m=256 --n=256 --k=256 --kernels=wmma_gemm_nn  --iterations=1 --providers=cutlass
               accel-sim-mem: 3G
+#             - args: --seed=2020 --dist=0  --m=512 --n=512 --k=512 --kernels=wmma_gemm_nn  --iterations=1 --providers=cutlass
+#               accel-sim-mem: 3G
+#             - args: --seed=2020 --dist=0  --m=1024 --n=1024 --k=1024 --kernels=wmma_gemm_nn  --iterations=1 --providers=cutlass
+#               accel-sim-mem: 3G
+#             - args: --seed=2020 --dist=0  --m=2048 --n=2048 --k=2048 --kernels=wmma_gemm_nn  --iterations=1 --providers=cutlass
+#               accel-sim-mem: 3G
+#             - args: --seed=2020 --dist=0  --m=256 --n=256 --k=256 --kernels=sgemm_nn  --iterations=1 --providers=cutlass
+#               accel-sim-mem: 3G
+#             - args: --seed=2020 --dist=0  --m=512 --n=512 --k=512 --kernels=sgemm_nn  --iterations=1 --providers=cutlass
+#               accel-sim-mem: 3G
+#             - args: --seed=2020 --dist=0  --m=1024 --n=1024 --k=1024 --kernels=sgemm_nn  --iterations=1 --providers=cutlass
+#               accel-sim-mem: 3G
+#             - args: --seed=2020 --dist=0  --m=2048 --n=2048 --k=2048 --kernels=sgemm_nn  --iterations=1 --providers=cutlass
+#               accel-sim-mem: 3G
 #            - args: --seed=2020 --dist=0  --m=2048 --n=2048 --k=2048 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
 #              accel-sim-mem: 3G
 #            - args: --seed=2020 --dist=0  --m=512 --n=512 --k=512 --kernels=wmma_gemm_nn  --iterations=5 --providers=cutlass
