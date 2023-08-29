@@ -13,6 +13,21 @@
 
 #include "trace_parser.h"
 
+std::map<unsigned, sass_inst_t> pc_to_sassStr;
+std::vector<int> have_readed_insn_pcs;
+
+sass_inst_t find_sass_inst_by_pc(unsigned pc) {
+  std::map<unsigned, sass_inst_t>::iterator iter;
+  iter = pc_to_sassStr.find(pc);
+  if (iter != pc_to_sassStr.end()) {
+    return iter->second;
+  } else {
+    std::cout << "Can't find sass inst by pc: " << std::hex << pc << std::endl;
+    sass_inst_t null_ = sass_inst_t();
+    return null_;
+  }
+}
+
 bool is_number(const std::string &s) {
   std::string::const_iterator it = s.begin();
   while (it != s.end() && std::isdigit(*it)) ++it;
@@ -124,9 +139,56 @@ void inst_memadd_info_t::base_delta_decompress(
   }
 }
 
+std::string intToHex(unsigned num) {
+    std::stringstream stream;
+    stream << std::setfill('0') << std::setw(4) << std::hex << num;
+    return stream.str();
+}
+
+int get_line_num_by_pc(const std::string filename, const std::string targetNumber) {
+    
+    // std::ifstream file(filename);
+    // std::string line;
+    // int lineNumber = 0;
+
+    // while (std::getline(file, line)) {
+    //     lineNumber++;
+    //     if (line.substr(0, 4) == targetNumber) {
+    //         file.close();
+    //         return lineNumber;
+    //     }
+    // }
+
+    // file.close();
+    // return -1;
+
+    std::ifstream file(filename);
+    std::string line;
+    int lineNumber = 0;
+
+    while (std::getline(file, line)) {
+      lineNumber++;
+      size_t firstSpace = line.find(" ");
+      if (firstSpace != std::string::npos) {
+          size_t secondSpace = line.find(" ", firstSpace + 1);
+          if (secondSpace != std::string::npos) {
+              if (line.substr(firstSpace + 1, secondSpace - firstSpace - 1) == targetNumber) {
+                file.close();
+                return lineNumber;
+              }
+          }
+      }
+    }
+
+    file.close();
+    return -1;
+}
+
 bool inst_trace_t::parse_from_string(std::string trace,
                                      unsigned trace_version,
-                                     unsigned enable_lineinfo) {
+                                     unsigned enable_lineinfo,
+                                     std::string kernel_name,
+                                     unsigned kernel_id) {
   std::stringstream ss;
   ss.str(trace);
 
@@ -165,6 +227,33 @@ bool inst_trace_t::parse_from_string(std::string trace,
   for (unsigned i = 0; i < reg_srcs_num; ++i) {
     ss >> temp;
     sscanf(temp.c_str(), "R%d", &reg_src[i]);
+  }
+
+  if (!count(have_readed_insn_pcs.begin(), have_readed_insn_pcs.end(), m_pc)) {
+    pc_to_sassStr[m_pc] = sass_inst_t();
+    pc_to_sassStr[m_pc].insnStr = trace;
+    pc_to_sassStr[m_pc].kernel_name = kernel_name;
+    pc_to_sassStr[m_pc].kernel_id = kernel_id;
+    pc_to_sassStr[m_pc].line_num = line_num;
+    pc_to_sassStr[m_pc].m_pc = m_pc;
+    pc_to_sassStr[m_pc].mask = mask;
+    pc_to_sassStr[m_pc].reg_dsts_num = reg_dsts_num;
+    pc_to_sassStr[m_pc].opcode = opcode;
+    pc_to_sassStr[m_pc].reg_srcs_num = reg_srcs_num;
+
+    pc_to_sassStr[m_pc].m_empty = false;
+
+    for (unsigned i = 0; i < reg_dsts_num; ++i) {
+      pc_to_sassStr[m_pc].reg_dest[i] = reg_dest[i];
+    }
+    for (unsigned i = 0; i < reg_srcs_num; ++i) {
+      pc_to_sassStr[m_pc].reg_src[i] = reg_src[i];
+    }
+    
+    pc_to_sassStr[m_pc].m_source_file = std::string("./traces/kernel-") + 
+                                        std::to_string(kernel_id) + std::string(".traceg");
+    pc_to_sassStr[m_pc].m_source_line = get_line_num_by_pc(pc_to_sassStr[m_pc].m_source_file, intToHex(m_pc));
+    have_readed_insn_pcs.push_back(m_pc);
   }
 
   // parse mem info
@@ -366,9 +455,13 @@ void trace_parser::kernel_finalizer(kernel_trace_t *trace_info) {
   delete trace_info;
 }
 
+bool have_print_sass = false;
+
 void trace_parser::get_next_threadblock_traces(
     std::vector<std::vector<inst_trace_t> *> threadblock_traces,
-    unsigned trace_version, unsigned enable_lineinfo, std::ifstream *ifs) {
+    unsigned trace_version, unsigned enable_lineinfo, std::ifstream *ifs,
+    std::string kernel_name,
+    unsigned kernel_id) {
   for (unsigned i = 0; i < threadblock_traces.size(); ++i) {
     threadblock_traces[i]->clear();
   }
@@ -421,9 +514,40 @@ void trace_parser::get_next_threadblock_traces(
         assert(start_of_tb_stream_found);
         threadblock_traces[warp_id]
             ->at(inst_count)
-            .parse_from_string(line, trace_version, enable_lineinfo);
+            .parse_from_string(line, trace_version, enable_lineinfo,
+                               kernel_name, kernel_id);
         inst_count++;
       }
+    }
+  }
+
+  //输出保存的SASS指令，验证正确性。
+  std::map<unsigned, sass_inst_t>::iterator iter;
+  // for(iter = pc_to_sassStr.begin(); iter != pc_to_sassStr.end(); iter++) {
+  //   std::cout << std::hex << iter->first << ": " << std::endl << "    "
+  //             << iter->second.insnStr << std::endl << "    "
+  //             << std::dec << iter->second.line_num << std::endl << "    "
+  //             << std::hex << iter->second.m_pc << std::endl << "    "
+  //             << std::hex << iter->second.mask << std::endl << "    "
+  //             << std::dec << iter->second.reg_dsts_num << std::endl << "    "
+  //             << iter->second.opcode << std::endl << "    "
+  //             << std::dec << iter->second.reg_srcs_num << std::endl << "    "
+  //             << iter->second.kernel_name << std::endl << "    "
+  //             << iter->second.kernel_id << std::endl << "    "
+  //             << std::dec << iter->second.m_source_line << std::endl << "    "
+  //             << iter->second.m_source_file << std::endl << std::endl;
+  // }
+
+  if (have_print_sass == false) {
+    have_print_sass = true;
+    std::ofstream file("sass.txt");
+    if (file.is_open()) {
+      for(iter = pc_to_sassStr.begin(); iter != pc_to_sassStr.end(); iter++) {
+        file << iter->second.insnStr << std::endl;
+      }
+      file.close();
+    } else {
+      std::cout << "Unable to open sass file." << std::endl;
     }
   }
 }
