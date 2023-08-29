@@ -60,7 +60,9 @@ struct inst_trace_t {
   inst_memadd_info_t *memadd_info;
 
   bool parse_from_string(std::string trace, unsigned tracer_version,
-                         unsigned enable_lineinfo);
+                         unsigned enable_lineinfo,
+                         std::string kernel_name,
+                         unsigned kernel_id);
 
   bool check_opcode_contain(const std::vector<std::string> &opcode,
                             std::string param) const;
@@ -110,12 +112,50 @@ class trace_parser {
 
   void get_next_threadblock_traces(
       std::vector<std::vector<inst_trace_t> *> threadblock_traces,
-      unsigned trace_version, unsigned enable_lineinfo, std::ifstream *ifs);
+      unsigned trace_version, unsigned enable_lineinfo, std::ifstream *ifs,
+      std::string kernel_name,
+      unsigned kernel_id);
 
   void kernel_finalizer(kernel_trace_t *trace_info);
 
  private:
   std::string kernellist_filename;
 };
+
+
+/*
+这里在处理SASS指令，读取文件kernel-1.traceg，每行一个指令。ptx_stats.cc中的统计信息需要用到PC值，
+因此这里我们需要创建一个数据结构，在读取文件时，将每行的PC值-指令字符串存储起来。我们使用一个字典
+pc_to_sassStr存储。另外方便起见，用一个向量存储已经读取过的PC值，这样可以方便的查看是否有重复的PC
+值。
+*/
+
+struct sass_inst_t {
+  std::string insnStr;
+  std::string kernel_name;
+  unsigned kernel_id;
+
+  unsigned line_num;
+  unsigned m_pc;
+  unsigned mask;
+  unsigned reg_dsts_num;
+  unsigned reg_dest[MAX_DST];
+  std::string opcode;
+  unsigned reg_srcs_num;
+  unsigned reg_src[MAX_SRC];
+
+  std::string m_source_file;
+  unsigned m_source_line;
+
+  const char *source_file() const { return m_source_file.c_str(); }
+  unsigned source_line() const { return m_source_line; }
+
+  bool m_empty=true;
+};
+
+extern std::map<unsigned, sass_inst_t> pc_to_sassStr;
+extern std::vector<int> have_readed_insn_pcs;
+
+sass_inst_t find_sass_inst_by_pc(unsigned pc);
 
 #endif
