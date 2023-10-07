@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Copyright (c) 2018-2021, Mahmoud Khairy, Vijay Kandiah, Timothy Rogers, Tor M. Aamodt, Nikos Hardavellas
 # Northwestern University, Purdue University, The University of British Columbia
 # All rights reserved.
@@ -30,7 +28,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 
-from optparse import OptionParser
+
 import os
 import subprocess
 import os
@@ -46,6 +44,8 @@ import yaml
 import common
 import re
 import datetime
+from optparse import OptionParser
+
 
 # We will look for the benchmarks 
 parser = OptionParser()
@@ -72,6 +72,9 @@ parser.add_option("-C", "--collect", dest="collect", default="cycles",
                 help="Pass what you want from the hardware. Options are: \"cycles,other_stats\"")
 
 (options, args) = parser.parse_args()
+
+for p in os.getenv("PATH").split(os.pathsep):
+    print(p)
 
 if not options.disable_nvprof:
     if not any([os.path.isfile(os.path.join(p, "nvprof")) for p in os.getenv("PATH").split(os.pathsep)]):
