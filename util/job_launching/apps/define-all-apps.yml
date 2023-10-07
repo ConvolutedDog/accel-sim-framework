@@ -18,6 +18,17 @@ wmma_tensorcore:
             - args:
               accel-sim-mem: 1G
 
+###################################################################################################3
+# InstructionMonitor. 202309261507
+###################################################################################################3
+InstructionMonitor:
+    exec_dir: "$GPUAPPS_ROOT/bin/$CUDA_VERSION/release/"
+    data_dirs: ""
+    execs:
+        - wmma_tensorcore:
+            - args:
+              accel-sim-mem: 1G
+
 # cutlass
 cutlass:
     exec_dir: "$GPUAPPS_ROOT/bin/$CUDA_VERSION/release/"
