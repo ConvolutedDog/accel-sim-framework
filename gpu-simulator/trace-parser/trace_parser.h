@@ -149,7 +149,7 @@ struct sass_inst_t {
 
   const char *source_file() const { return m_source_file.c_str(); }
   unsigned source_line() const { return m_source_line; }
-
+  
   bool m_empty=true;
 };
 
