@@ -8,3 +8,7 @@ sim_run_*
 4.2/
 gpucomputingsdk_4.2.9_linux.run
 util/job_launching/*.txt
+util/PerformanceAnalysis/*.pkl
+util/PerformanceAnalysis/*.pdf
+util/PerformanceAnalysis/*.png
+util/PerformanceAnalysis/*.jpg
