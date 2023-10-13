@@ -6,6 +6,119 @@ all_sm_warp_insns = []
 
 sm_warp_insns = {}
 
+stall_type = {
+  0:  "Issue: ibuffer_empty", 
+  1:  "Issue: waiting for barrier",
+  2:  "Issue: ibuffer_empty and also waiting for barrier",
+  3:  "Issue: control hazard",
+  4:  "Issue: m_mem_out has no free slot",
+  5:  "Issue: previous_issued_inst_exec_type is MEM",
+  6:  "Issue: m_int_out has no free slot",
+  7:  "Issue: previous_issued_inst_exec_type is INT",
+  8:  "Issue: m_sp_out has no free slot",
+  9:  "Issue: previous_issued_inst_exec_type is SP",
+  10: "Issue: m_dp_out has no free slot",
+  11: "Issue: previous_issued_inst_exec_type is DP",
+  12: "Issue: m_sfu_out has no free slot",
+  13: "Issue: previous_issued_inst_exec_type is SFU",
+  14: "Issue: m_tensor_core_out has no free slot",
+  15: "Issue: previous_issued_inst_exec_type is TENSOR",
+  16: "Issue: m_spec_cores_out has no free slot",
+  17: "Issue: previous_issued_inst_exec_type is SPECIALIZED",
+  18: "Issue: scoreboard",
+  19: "Fetch: read miss an insn from L1I",
+  20: "Fetch: reservation fail an insn from L1I",
+  21: "Execute: m_memport of L1D is not free",
+  22: "Execute: m_dispatch_reg of fu is not empty",
+  23: "Execute: result_bus has no slot",
+  24: "Execute: dispatch delay of insn is > 0",
+  25: "Execute: l1_latency_queue is not free",
+  26: "Execute: COAL_STALL occurs",
+  27: "Execute: mf_next->get_inst()'s out_reg[Rx] has pending writes",
+  28: "Execute: icnt_injection_buffer is full",
+  29: "Execute: m_next_wb's out_reg[Rx] has pending writes",
+  30: "Execute: m_next_global of ldst unit is not free",
+  31: "Execute: fill_port of L1D is not free",
+  32: "Execute: m_pipeline_reg is not empty",
+  33: "Execute: m_dispatch_reg has pending writes",
+  34: "Execute: bank of reg is not idle",
+  35: "Readoperands: bank reg belonged to was allocated for write",
+  36: "Readoperands: bank reg belonged to was allocated for other regs",
+  37: "Readoperands: not found free cu",
+  38: "Writeback: bank of reg is not idle",
+}
+
+stall_type_specific = {
+  0:  "Issue: ibuffer_empty", 
+  1:  "Issue: waiting for barrier",
+  2:  "Issue: ibuffer_empty and also waiting for barrier",
+  3:  "Issue: control hazard",
+  4:  "Issue: m_mem_out has no free slot",
+  5:  "Issue: previous_issued_inst_exec_type is MEM",
+  6:  "Issue: m_int_out has no free slot",
+  7:  "Issue: previous_issued_inst_exec_type is INT",
+  8:  "Issue: m_sp_out has no free slot",
+  9:  "Issue: previous_issued_inst_exec_type is SP",
+  10: "Issue: m_dp_out has no free slot",
+  11: "Issue: previous_issued_inst_exec_type is DP",
+  12: "Issue: m_sfu_out has no free slot",
+  13: "Issue: previous_issued_inst_exec_type is SFU",
+  14: "Issue: m_tensor_core_out has no free slot",
+  15: "Issue: previous_issued_inst_exec_type is TENSOR",
+  16: "Issue: m_spec_cores_out has no free slot",
+  17: "Issue: previous_issued_inst_exec_type is SPECIALIZED",
+  18: "Issue: scoreboard",
+  19: "Fetch: read miss an insn from L1I",
+  20: "Fetch: reservation fail an insn from L1I",
+  21: "Execute: m_memport of L1D is not free",
+  22: "Execute: m_dispatch_reg of fu\[\d+\]-\w+\s is not empty",
+  23: "Execute: result_bus has no slot for latency-\d+",
+  24: "Execute: dispatch delay of insn is \d+ > 0",
+  25: "Execute: l1_latency_queue\[\d+\]\[\d+\] is not free",
+  26: "Execute: COAL_STALL occurs",
+  27: "Execute: mf_next->get_inst()'s out_reg\[R\d+\] has \d+ pending writes",
+  28: "Execute: icnt_injection_buffer is full",
+  29: "Execute: m_next_wb's out_reg\[R\d+\] has \d+ pending writes",
+  30: "Execute: m_next_global of ldst unit is not free",
+  31: "Execute: fill_port of L1D is not free",
+  32: "Execute: m_pipeline_reg\[\d+\] is not empty",
+  33: "Execute: m_dispatch_reg has pending writes",
+  34: "Execute: bank-\d+ of reg-\d+ is not idle",
+  35: "ReadOperands: bank\[\d+\] reg-\d+ \(order:\d+\) belonged to was allocated for write",
+  36: "ReadOperands: bank\[\d+\] reg-\d+ \(order:\d+\) belonged to was allocated for other regs",
+  37: "ReadOperands: port_num-\d+/m_in_ports\[\d+\].m_in\[\d+\] fails as not found free cu",
+  38: "Writeback: bank-\d+ of reg-\d+ is not idle",
+}
+
+stall_type_cycles = {
+  0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5:0, 6:0, 7:0, 8:0, 9:0, 10:0, \
+  11:0, 12:0, 13:0, 14:0, 15:0, 16:0, 17:0, 18:0, 19:0, 20:0, \
+  21:0, 22:0, 23:0, 24:0, 25:0, 26:0, 27:0, 28:0, 29:0, 30:0, \
+  31:0, 32:0, 33:0, 34:0, 35:0, 36:0, 37:0, 38:0, \
+}
+
+def get_stall_type_cycles():
+  import re
+  for insn in all_sm_warp_insns:
+    for stall_str in insn.stall_all_strs:
+      for _ in range(len(stall_type_specific)):
+        stall_t = stall_type_specific[_].split(': ')[0]
+        stall_reason = stall_type_specific[_].split(': ')[1]
+        if stall_t in stall_str:
+          pattern = re.compile(stall_reason)
+          match = pattern.match(insn.stall_strs[insn.stall_all_strs.index(stall_str)])
+          if match:
+            pass
+            print("@", insn.stall_strs[insn.stall_all_strs.index(stall_str)], "  |  ", stall_reason)
+            stall_type_cycles[_] += 1
+  # num_insn = 0
+  # for insn in all_sm_warp_insns:
+  #   num_insn += len(insn.stall_all_strs)
+  # print(num_insn)
+  print("Stall Num:")
+  for _ in range(len(stall_type_cycles)):
+    print('{0:>5}  |  '.format(str(stall_type_cycles[_])), stall_type_specific[_])
+
 # 指令信息类，key: {pc, start_cycle. sid, wid}
 class Insn:
   def __init__(self, pc, start_cycle, sid, wid):
@@ -17,6 +130,8 @@ class Insn:
     self.wid = wid
     self.stall_cycles = []
     self.flying_cycles = []
+    self.stall_strs = []
+    self.stall_all_strs = []
   
   def print(self):
     if self.insn_str == None or self.end_cycle == None:
@@ -95,6 +210,8 @@ def get_issue_stall(lines):
       if (not stall_cycle in insn.stall_cycles) and (not stall_cycle == insn.end_cycle) and \
          (not stall_cycle == insn.start_cycle):
         insn.stall_cycles.append(stall_cycle)
+        insn.stall_strs.append(line.split(", insn pc[")[0].split("fails as ")[1])
+        insn.stall_all_strs.append(line)
 
 def get_readoperands_stall(lines):
   for line in lines:
@@ -111,7 +228,9 @@ def get_readoperands_stall(lines):
       if (not stall_cycle in insn.stall_cycles) and (not stall_cycle == insn.end_cycle) and \
          (not stall_cycle == insn.start_cycle):
         insn.stall_cycles.append(stall_cycle)
-
+        insn.stall_strs.append(line.split(", insn pc[")[0].split("fails as ")[1])
+        insn.stall_all_strs.append(line)
+        
 def get_execute_stall(lines):
   for line in lines:
     # Stall cycle[22730]: Execute, SM-0/wid-2 fails as m_dispatch_reg has pending writes, insn pc[0x0590]: 
@@ -130,6 +249,8 @@ def get_execute_stall(lines):
       if (not stall_cycle in insn.stall_cycles) and (not stall_cycle == insn.end_cycle) and \
          (not stall_cycle == insn.start_cycle):
         insn.stall_cycles.append(stall_cycle)
+        insn.stall_strs.append(line.split(", insn pc[")[0].split("fails as ")[1])
+        insn.stall_all_strs.append(line)
 
 def get_writeback_stall(lines):
   for line in lines:
@@ -147,6 +268,8 @@ def get_writeback_stall(lines):
       if (not stall_cycle in insn.stall_cycles) and (not stall_cycle == insn.end_cycle) and \
          (not stall_cycle == insn.start_cycle):
         insn.stall_cycles.append(stall_cycle)
+        insn.stall_strs.append(line.split(", insn pc[")[0].split("fails as ")[1])
+        insn.stall_all_strs.append(line)
 
 def get_flying_cycles():
   for insn in all_sm_warp_insns:
@@ -243,13 +366,49 @@ def plot_insn_stall_sid(max_end_cycle, min_start_cycle, max_pc, min_pc, sid):
     for insn in sm_warp_insns[sid][wid]:
       for cycle in insn.flying_cycles:
         x_data.append(cycle - min_start_cycle)
-        y_data.append(max_pc/16 - min_pc/16 - insn.pc/16)
-    plt.scatter(x_data, y_data, marker="_", s=0.1)
-  plt.legend('x1')
+        # y_data.append(max_pc/16 - min_pc/16 - insn.pc/16 - wid*0.0)
+        y_data.append(insn.pc/16 + wid*0.0)
+    plt.scatter(x_data, y_data, marker="_", s=1, label='wid: %2d'%wid)
+  plt.xlim((0, max_end_cycle-min_start_cycle))
+  plt.ylim((max_pc/16 - min_pc/16, 0))
+  plt.xlabel("Cycle")
+  plt.ylabel("Insn order")
+  plt.legend()
   plt.savefig("plot.pdf")
+  # plt.show()
+
+def plot_insn_stall_sid_limited(max_end_cycle, min_start_cycle, max_pc, min_pc, sid, \
+                                left_cycle, right_cycle, left_pc, right_pc):
+  # sm_warp_insns, specify sid and wid:
+  #   for insn in sm_warp_insns[sid][wid]:
+  #     for cycle in insn.flying_cycles:
+  #       x: cycle
+  #       y: insn.pc/16
+  # figure size:
+  #   x: max_end_cycle - min_start_cycle + 1
+  #   y: max_pc/16 - min_pc/16 + 1
+  import matplotlib.pyplot as plt
+  plt.figure(figsize=(10, 10), dpi=100)
+  for wid in sm_warp_insns[sid].keys():
+    x_data = []
+    y_data = []
+    for insn in sm_warp_insns[sid][wid]:
+      for cycle in insn.flying_cycles:
+        if left_cycle < cycle < right_cycle and left_pc < int(insn.pc/16) < right_pc:
+            x_data.append(cycle - min_start_cycle)
+            y_data.append(insn.pc/16 + wid*0.0)
+    plt.scatter(x_data, y_data, marker="_", s=1, label='wid: %2d'%wid)
+  # plt.xlim((0, max_end_cycle-min_start_cycle))
+  plt.xlim((left_cycle - min_start_cycle, right_cycle-min_start_cycle))
+  plt.ylim((right_pc - min_pc/16, left_pc - min_pc/16))
+  plt.xlabel("Cycle")
+  plt.ylabel("Insn order")
+  plt.legend()
+  plt.savefig("plot.pdf")
+  # plt.show()
 
 if __name__ == "__main__":
-  f = open("../../tmp.txt", "r")
+  f = open("./tmp.txt", "r")
   lines = f.readlines()
   f.close()
 
@@ -298,20 +457,17 @@ if __name__ == "__main__":
   
   print("min_start_cycle, max_end_cycle, sm_num, warp_num:", \
         min_start_cycle, max_end_cycle, len(sm_nums), len(warp_nums))
-  
-  # for sm in sm_warp_insns.keys():
-  #   print("SM: ", sm)
-  #   for warp in sm_warp_insns[sm].keys():
-  #     print("    Warp: ", warp)
-  #     for insn in sm_warp_insns[sm][warp]:
-  #       print("        ", end="")
-  #       insn.print()
-  #       print("        ", insn.flying_cycles)
+  print("max_pc/16, min_pc/16:", int(max_pc/16), int(min_pc/16))
   
   sid = 0
   wid = 0
+  left_cycle = 21000
+  right_cycle = 24000
+  left_pc_div16 = 30
+  right_pc_div16 = 60
   
   # plot_insn_stall_sid_wid(max_end_cycle, min_start_cycle, max_pc, min_pc, sid, wid)
   # plot_insn_stall_sid(max_end_cycle, min_start_cycle, max_pc, min_pc, sid)
+  # plot_insn_stall_sid_limited(max_end_cycle, min_start_cycle, max_pc, min_pc, sid, left_cycle, right_cycle, left_pc_div16, right_pc_div16)
   
-  
+  get_stall_type_cycles()
