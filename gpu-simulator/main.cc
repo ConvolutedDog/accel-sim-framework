@@ -225,6 +225,7 @@ gpgpu_sim *gpgpu_trace_sim_init_perf_model(int argc, const char *argv[],
   m_gpgpu_context->ptx_reg_options(opp);
   m_gpgpu_context->func_sim->ptx_opcocde_latency_options(opp);
 
+  //读取互连网络的配置信息。
   icnt_reg_options(opp);
 
   m_gpgpu_context->the_gpgpusim->g_the_gpu_config =
