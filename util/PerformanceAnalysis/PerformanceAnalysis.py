@@ -109,15 +109,15 @@ def get_stall_type_cycles():
           match = pattern.match(insn.stall_strs[insn.stall_all_strs.index(stall_str)])
           if match:
             pass
-            print("@", insn.stall_strs[insn.stall_all_strs.index(stall_str)], "  |  ", stall_reason)
+            #print("@", insn.stall_strs[insn.stall_all_strs.index(stall_str)], "  |  ", stall_reason)
             stall_type_cycles[_] += 1
   # num_insn = 0
   # for insn in all_sm_warp_insns:
   #   num_insn += len(insn.stall_all_strs)
   # print(num_insn)
-  print("Stall Num:")
-  for _ in range(len(stall_type_cycles)):
-    print('{0:>5}  |  '.format(str(stall_type_cycles[_])), stall_type_specific[_])
+  #print("Stall Num:")
+  #for _ in range(len(stall_type_cycles)):
+  #  print('{0:>5}  |  '.format(str(stall_type_cycles[_])), stall_type_specific[_])
 
 # 指令信息类，key: {pc, start_cycle. sid, wid}
 class Insn:
@@ -182,9 +182,12 @@ def get_end_cycle(lines):
       insn_str = line.split(": pc[0x")[1].split("]: ")[1]
       insn = find_insn(pc, sid, wid)
       # print("pc-%6s, sid-%2d, wid-%2d: " % (hex(pc), sid, wid))
-      assert(not insn == None)
+      # assert(not insn == None) # yangjianchao16 del 20231028
+      if insn == None:
+        continue
       insn.set_end_cycle(end_cycle)
       insn.set_insn_str(insn_str)
+      
 
 # 在每次取指时会取两条指令到Ibuffer中，但可能最后一次取指的第二条指令不需要执行，因此在
 # get_start_cycle()中会有多余的Insn对象被创建。这些Insn对象的end_cycle和insn_str都为
@@ -408,7 +411,7 @@ def plot_insn_stall_sid_limited(max_end_cycle, min_start_cycle, max_pc, min_pc, 
   # plt.show()
 
 if __name__ == "__main__":
-  f = open("./tmp.txt", "r")
+  f = open("./heartwall.txt", "r")
   lines = f.readlines()
   f.close()
 
