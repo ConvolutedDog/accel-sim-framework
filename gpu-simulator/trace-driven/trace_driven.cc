@@ -383,6 +383,14 @@ bool trace_warp_inst_t::parse_from_trace_struct(
       break;
   }
 
+
+  if (trace.memadd_info != NULL) {      // yangjianchao16 add
+    printf("m_pc:%04x opcode:%15s addr:", pc, opcode.c_str());
+    for (unsigned i = 0; i < warp_size(); ++i)
+      printf("0x%x ", trace.memadd_info->addrs[i]);
+    printf("\n");
+  }
+
   return true;
 }
 
