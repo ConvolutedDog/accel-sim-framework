@@ -22,7 +22,7 @@ sass_inst_t find_sass_inst_by_pc(unsigned pc) {
   if (iter != pc_to_sassStr.end()) {
     return iter->second;
   } else {
-    std::cout << "Can't find sass inst by pc: " << std::hex << pc << std::endl;
+    // std::cout << "Can't find sass inst by pc: " << std::hex << pc << std::endl;
     sass_inst_t null_ = sass_inst_t();
     return null_;
   }
